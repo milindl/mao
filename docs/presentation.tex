@@ -1,0 +1,119 @@
+\documentclass[pdf]{beamer}
+\usetheme{Dresden}
+\usecolortheme{spruce}
+%% preamble
+\title{CS653}
+\subtitle{Mao: A Game of Rules}
+\author[Milind Luthra]{Milind Luthra (150363)}
+\date{April 30, 2018}
+\usepackage{listings}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+
+\begin{document}
+%% title frame
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{What is Mao?}
+  \begin{itemize}
+  \item <1-> Card game with no set rules.
+  \item <2-> Instead, rules are added at play time.
+  \item <3-> Winner of the previous round adds one rule at the start of the next round.
+  \item <4-> Rules can be used to change objectives, win conditions, even make it into something entirely unrelated to card games.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Description of a Card Game}
+  \begin{itemize}
+  \item <1-> The main unit of a game is a \textit{Turn}. We keep having \textit{Turns} until one of the player wins.
+  \item <2-> A \textit{Turn} is a set of \textit{Stages}, for instance, a ``betting stage'', followed by a ``reveal stage'' and so on.
+  \item <3-> Each \textit{Stage} is a set of \textit{Rules}, which are applied to each player.
+  \item <4-> Some basic structures like \textit{Cards}, \textit{Tokens} and \textit{Decks} are provided and additional ones can be defined.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Two Main Components}
+  \begin{itemize}
+  \item <1-> A way to write rules easily: an \textbf{Embedded DSL}.
+    \begin{itemize}
+    \item <2-> The \texttt{do} syntax of Haskell lends itself very nicely to the creation of a `language of rules'.
+    \item <3-> Predefined directives can provide syntactic sugar for commonly performed actions inside a rule.
+      \item <4-> While the full power of the Haskell language is available to anyone who wants it.
+      \end{itemize}
+    \item <5-> And a way to interpret and use these rules at runtime. For this, we use a library called \texttt{hint}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{How Does a Rule Look Like?}
+  \begin{lstlisting}
+    topMostCard <- pop from "mainDeck";
+    out topMostCard;
+    outS "Would you like to play this card?";
+    willPlay <- inp (t :: Bool);
+    if willPlay
+      then push topMostCard to "sideDeck";
+      else push topMostCard to "discardDeck";
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}{Haskell Feature Usage}
+  \begin{itemize}
+  \item <1-> \textbf{Dynamic and Typeable}
+    \begin{itemize}
+    \item <2-> Haskell usually deals with types at compile time.
+    \item <3-> We can try providing common datatypes like \texttt{Deck/Token} to help users while they are coming up with rules.
+    \item <4-> But this is not enough as the user might want to save and operate over entirely different range of types.
+    \item <5-> Thus, we need dynamic types!
+    \item <6-> Using the \texttt{Typeable} typeclass, we can make sure that objects are correctly typed when converted to and from the \texttt{Dynamic} type.
+      \item <7-> Need to use language extension \texttt{DeriveDataTypeable}.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Haskell Feature Usage}
+  \begin{itemize}
+  \item <1-> \textbf{Monad Transformers}
+    \begin{itemize}
+    \item <2-> Two monads, one a \texttt{State} monad to maintain the state of the game, and an \texttt{IO} monad.
+    \item <3-> Might need to use them together (a rule may contain IO as well).
+    \item <4-> Monad transformers provide a way to ``wrap'' a monad around other monads.
+    \item <5-> For instance, \texttt{StateT GameState IO ()} wraps a state around an IO.
+    \item <6-> To use IO, we can use \texttt{lift} or \texttt{liftIO}.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Haskell Feature Usage}
+  \begin{itemize}
+  \item <1-> Record syntax for data constructors.
+    \begin{itemize}
+    \item <2-> Makes creation of new data with a few modification easy.
+    \item <3-> For instance, \texttt{gameState' = gameState { winner = Just P1 }}
+    \end{itemize}
+  \item <4-> \texttt{Data.Map} for map implementation which would be better/faster than using list of tuples.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Gameplay}
+  \begin{center}
+    \Huge Demo Time!
+  \end{center}
+\end{frame}
+
+\begin{frame}{References}
+  \begin{itemize}
+  \item <1-> \href{http://julian.togelius.com/Font2013A.pdf}{Reference for modelling in terms of stages/turns} (I only used the basic idea, this has a lot more)
+  \item <2-> Libraries used: mtl, random-shuffle, hint, containers (See stackage/hackage for all of these)
+  \item <3-> I generated some of the pointfree forms of functions using \href{https://wiki.haskell.org/Lambdabot}{lambdabot}.
+  \end{itemize}
+\end{frame}
+
+%% normal frame
+ \end{document}

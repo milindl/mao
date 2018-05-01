@@ -1,0 +1,26 @@
+* mao
+
+A game of rules.
+
+** Build and Run Instructions
+
+You need to install ~stack~ to work with this.
+
+You need to open ~AddRule.hs~ and change the path in ~getRule~.
+
+Then, we can build and run the project.
+
+#+BEGIN_SRC bash
+$ stack build
+$ stack exec mao-exe
+#+END_SRC
+
+** Organization
+
+   - ~src/MaoLib.hs~ contains all the functions which make the DSL possible. To add a new function, put it in the appropriate section. In general, a function should evaluate to ~StateT GameState IO a~
+   - ~src/AddRuleLib.hs~ contains the calls to the ~hint~ library and the input mechanism to parse a new rule. If you want to make libraries or modules available to the rule writers, you can add them in the ~getRule~ function.
+   - ~src/Examples.hs~ is a basic example of using this card game description scheme to come up with a game in which cards are distributed randomly amongst four players, and each player plays a card on their turn. Each card has a score, and the player with the score exceeding 52 first wins. There's a sample rule given in the comments below which models skipping a turn if the score for that player is even.
+   - ~app/Main.hs~ contains the entrypoint into the program.
+
+Please see ~src/Reference.md~ for a description of the DSL in more depth.
+Please see ~docs/presentation.tex~ for a description of the actual game, some references and the list of libraries/features used.
